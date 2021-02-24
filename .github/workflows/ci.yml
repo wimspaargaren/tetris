@@ -11,7 +11,7 @@ jobs:
       - name: Install Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.15.x
+          go-version: 1.16.x
       - name: Checkout code
         uses: actions/checkout@v2
       - name: Check go mod
@@ -24,13 +24,13 @@ jobs:
     - name: Install Go
       uses: actions/setup-go@v2
       with:
-        go-version: 1.15.x
+        go-version: 1.16.x
     - name: Checkout code
       uses: actions/checkout@v2
     - name: Get go imports
       run: go get golang.org/x/tools/cmd/goimports
     - name: Test
-      run: go test -v -p=4 -cover ./...
+      run: go test -v -cover ./...
   golangci:
     name: lint
     runs-on: ubuntu-latest
