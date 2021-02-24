@@ -36,6 +36,19 @@ type Game interface {
 	Board() *Board
 }
 
+// NewGame create a new Tetris game
+func NewGame() Game {
+	t := &Tetris{
+		score: 0,
+		board: NewBoard(),
+	}
+	gameOver := t.newPiece()
+	if gameOver {
+		panic("unable to create new game")
+	}
+	return t
+}
+
 // Tetris the game implementation
 type Tetris struct {
 	board        *Board
@@ -46,11 +59,6 @@ type Tetris struct {
 // Score retrieves the current score
 func (g *Tetris) Score() int {
 	return g.score
-}
-
-// Board retrieves the current board
-func (g *Tetris) Board() *Board {
-	return g.board
 }
 
 // Step perform a game step
@@ -79,11 +87,21 @@ func (g *Tetris) DoAction(a Action) {
 	}
 }
 
+// Board retrieves the current board
+func (g *Tetris) Board() *Board {
+	return g.board
+}
+
 func (g *Tetris) newPiece() bool {
 	newPiece := newPieceFromType(PieceType(rand.Intn(int(ZType))))
+	// Use random offset for piece placement
+	pieceOffset := newPiece.offset()
+	newPiece.moveHorizontal(pieceOffset)
+	// If can't place, it's game over
 	if !g.board.canPlace(newPiece) {
 		return true
 	}
+
 	g.currentPiece = newPiece
 	g.board.setPiece(g.currentPiece)
 	return false
@@ -94,13 +112,13 @@ func (g *Tetris) movePieceDown() bool {
 	g.board.unSetPiece(g.currentPiece)
 	collided := !g.board.canMoveDown(g.currentPiece)
 	if !collided {
-		g.currentPiece.gravity()
+		g.currentPiece.down()
 	}
 	g.board.setPiece(g.currentPiece)
 	if collided {
 		g.score += 10
 		completedLines := g.board.checkCompletedLines()
-		g.score += 100 * completedLines
+		g.score += g.completedLinesScore(completedLines)
 
 		gameOver = g.newPiece()
 	}
@@ -108,15 +126,17 @@ func (g *Tetris) movePieceDown() bool {
 	return gameOver
 }
 
-// NewGame create a new Tetris game
-func NewGame() Game {
-	t := &Tetris{
-		score: 0,
-		board: NewBoard(),
+func (g *Tetris) completedLinesScore(completedLines int) int {
+	switch completedLines {
+	case 1:
+		return 100
+	case 2:
+		return 300
+	case 3:
+		return 500
+	case 4:
+		return 800
+	default:
+		return 0
 	}
-	gameOver := t.newPiece()
-	if gameOver {
-		panic("unable to create new game")
-	}
-	return t
 }

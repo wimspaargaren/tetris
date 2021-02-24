@@ -35,7 +35,7 @@ func (b *Board) checkCompletedLines() int {
 			b[i] = b[i-1]
 			i--
 		}
-		i = len(b) - 1
+		i = len(b)
 	}
 	return completedLines
 }
@@ -44,12 +44,15 @@ func (b *Board) canPlace(piece *Piece) bool {
 	for i := 0; i < 4; i++ {
 		row := piece.Shape[i].row
 		col := piece.Shape[i].col
+		// Outside borders left & right
 		if col < 0 || col > len(b[0])-1 {
 			return false
 		}
+		// Outside borders top or bottom
 		if row < 0 || row > len(b)-1 {
 			return false
 		}
+		// Check filled blok
 		if b[row][col] != 0 {
 			return false
 		}
@@ -60,39 +63,17 @@ func (b *Board) canPlace(piece *Piece) bool {
 func (b *Board) canMoveDown(piece *Piece) bool {
 	for i := 0; i < 4; i++ {
 		row := piece.Shape[i].row
+		// Hit bottom of board
 		if row >= len(b)-1 {
 			return false
 		}
-
+		// Check filled block below
 		if b[row+1][piece.Shape[i].col] != 0 {
 			return false
 		}
 	}
 	return true
 }
-
-// func (b *Board) canMoveRight(piece *Piece) bool {
-// 	for i := 0; i < 4; i++ {
-// 		col := piece.Shape[i].col
-// 		if col >= len(b[0])-1 {
-// 			return false
-// 		}
-// 	}
-// 	return true
-// }
-
-// func (b *Board) canMoveLeft(piece *Piece) bool {
-// 	for i := 0; i < 4; i++ {
-// 		col := piece.Shape[i].col
-// 		if col <= 0 {
-// 			return false
-// 		}
-// 		if b[piece.Shape[i].row][col] != 0 {
-// 			return false
-// 		}
-// 	}
-// 	return true
-// }
 
 func (b *Board) moveRight(piece *Piece) {
 	b.unSetPiece(piece)

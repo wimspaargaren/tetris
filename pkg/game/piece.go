@@ -1,5 +1,7 @@
 package game
 
+import "math/rand"
+
 // Point point of a shape
 type Point struct {
 	row int
@@ -9,10 +11,10 @@ type Point struct {
 // Shape shape of a piece consisting of 4 points
 type Shape [4]Point
 
-// PieceType is a constant for a shape of piece. There are 7 classic pieces like L, and O
+// PieceType type of a Tetris piece
 type PieceType int
 
-// Various values that the pieces can be
+// Different piece types
 const (
 	IType PieceType = iota
 	JType
@@ -41,28 +43,30 @@ func (p *Piece) copy() *Piece {
 	}
 }
 
-func (p *Piece) gravity() {
+func (p *Piece) down() {
 	for i := 0; i < 4; i++ {
 		p.Shape[i].row++
 	}
 }
 
 func (p *Piece) left() {
-	for i := 0; i < 4; i++ {
-		p.Shape[i].col--
-	}
+	p.moveHorizontal(-1)
 }
 
 func (p *Piece) right() {
+	p.moveHorizontal(1)
+}
+
+func (p *Piece) moveHorizontal(offset int) {
 	for i := 0; i < 4; i++ {
-		p.Shape[i].col++
+		p.Shape[i].col += offset
 	}
 }
 
 func (p *Piece) rotate() {
+	// pivot piece at 1
 	pivot := p.Shape[1]
 	for i := 0; i < 4; i++ {
-		// Index 1 is the pivot point
 		if i == 1 {
 			continue
 		}
@@ -146,6 +150,19 @@ func newPieceFromType(pieceType PieceType) *Piece {
 			},
 		}
 	default:
-		panic("getShapeFromPiece(Piece): Invalid piece entered")
+		panic("unknown piece type")
+	}
+}
+
+func (p *Piece) offset() int {
+	switch p.Type {
+	case IType:
+		return rand.Intn(7)
+	case OType:
+		return rand.Intn(9)
+	case JType, LType, SType, TType, ZType:
+		return rand.Intn(8)
+	default:
+		return rand.Intn(8)
 	}
 }

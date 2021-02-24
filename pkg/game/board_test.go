@@ -1,6 +1,7 @@
 package game
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/suite"
@@ -58,7 +59,7 @@ func (s *BoardTestSuite) TestCheckCompletedLines() {
 			CompletedLines: 1,
 		},
 		{
-			Name: "Multi rows",
+			Name: "Triple rows nothing on top",
 			CreateBoard: func() *Board {
 				b := NewBoard()
 				b[18] = filledRow()
@@ -75,7 +76,7 @@ func (s *BoardTestSuite) TestCheckCompletedLines() {
 			CompletedLines: 3,
 		},
 		{
-			Name: "Multi rows",
+			Name: "Tetris",
 			CreateBoard: func() *Board {
 				b := NewBoard()
 				b[16] = [10]int{1, 0, 1, 1, 0, 1, 1, 0, 1, 0}
@@ -94,15 +95,67 @@ func (s *BoardTestSuite) TestCheckCompletedLines() {
 			},
 			CompletedLines: 4,
 		},
+		{
+			Name: "Triple rows multi on top",
+			CreateBoard: func() *Board {
+				b := NewBoard()
+				b[18] = [10]int{1, 0, 1, 1, 0, 0, 0, 0, 1, 0}
+				b[19] = [10]int{1, 0, 1, 0, 0, 1, 1, 0, 1, 0}
+				b[20] = [10]int{1, 0, 1, 1, 0, 1, 1, 0, 1, 0}
+				b[21] = filledRow()
+				return b
+			},
+			ExpectedBoard: func() Board {
+				b := NewBoard()
+				b[19] = [10]int{1, 0, 1, 1, 0, 0, 0, 0, 1, 0}
+				b[20] = [10]int{1, 0, 1, 0, 0, 1, 1, 0, 1, 0}
+				b[21] = [10]int{1, 0, 1, 1, 0, 1, 1, 0, 1, 0}
+				return *b
+			},
+			CompletedLines: 1,
+		},
+		{
+			Name: "Triple rows multi on top",
+			CreateBoard: func() *Board {
+				b := NewBoard()
+				b[15] = [10]int{1, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+				b[16] = [10]int{1, 0, 1, 1, 0, 0, 0, 0, 1, 0}
+				b[17] = [10]int{1, 0, 1, 0, 0, 1, 1, 0, 1, 0}
+				b[18] = [10]int{1, 0, 1, 1, 0, 1, 1, 0, 1, 0}
+				b[19] = filledRow()
+				b[20] = filledRow()
+				b[21] = filledRow()
+				return b
+			},
+			ExpectedBoard: func() Board {
+				b := NewBoard()
+				b[18] = [10]int{1, 0, 0, 0, 0, 0, 0, 0, 0, 0}
+				b[19] = [10]int{1, 0, 1, 1, 0, 0, 0, 0, 1, 0}
+				b[20] = [10]int{1, 0, 1, 0, 0, 1, 1, 0, 1, 0}
+				b[21] = [10]int{1, 0, 1, 1, 0, 1, 1, 0, 1, 0}
+				return *b
+			},
+			CompletedLines: 3,
+		},
 	}
 
 	for _, test := range tests {
 		s.Run(test.Name, func() {
 			board := test.CreateBoard()
 			completedLines := board.checkCompletedLines()
-			s.Equal(test.CompletedLines, completedLines)
+
+			s.Require().Equal(test.CompletedLines, completedLines)
 			s.Equal(test.ExpectedBoard(), *board)
 		})
+	}
+}
+
+func debugBoard(board *Board) {
+	for i := 0; i < len(board); i++ {
+		for j := 0; j < len(board[0]); j++ {
+			fmt.Print(board[i][j])
+		}
+		fmt.Println()
 	}
 }
 

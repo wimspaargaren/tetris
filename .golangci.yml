@@ -177,6 +177,8 @@ issues:
 
     - path: _test\.go
       linters:
+        - unused
+        - deadcode
         - gocyclo
         - errcheck
         - dupl

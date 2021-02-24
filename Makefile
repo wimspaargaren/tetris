@@ -24,10 +24,10 @@ test.e2e: | $(GOTEST)
 	@go test --tags=e2e -v ./e2e/... 
 	@echo "Done running tests"
 
-#  Creates coverage report
+# Creates coverage report
 coverage-report:
 	@open reports/coverage.html
 
 # Runs the game
 run:
-	go run ./cmd/testris
+	go run cmd/tetris/main.go
