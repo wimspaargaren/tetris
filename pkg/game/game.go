@@ -71,7 +71,6 @@ func (g *Tetris) Score() int {
 
 // Step perform a game step
 func (g *Tetris) Step(a Action) *StepResult {
-	// g.board.debug()
 	if a != ActionSleep {
 		g.DoAction(a)
 	}
