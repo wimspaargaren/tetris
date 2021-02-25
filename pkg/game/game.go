@@ -14,7 +14,13 @@ func init() {
 
 // StepResult result of performing a step in the game
 type StepResult struct {
-	GameOver bool
+	GameOver            bool
+	Action              Action
+	Board               *Board
+	Collided            bool
+	CompletedLinesStep  int
+	CompletedLinesTotal int
+	Score               int
 }
 
 // Action is an action which can be taken in the game
@@ -52,8 +58,10 @@ func NewGame() Game {
 // Tetris the game implementation
 type Tetris struct {
 	board        *Board
-	score        int
 	currentPiece *Piece
+
+	score          int
+	completedLines int
 }
 
 // Score retrieves the current score
@@ -67,10 +75,10 @@ func (g *Tetris) Step(a Action) *StepResult {
 	if a != ActionSleep {
 		g.DoAction(a)
 	}
-	gameOver := g.movePieceDown()
-	return &StepResult{
-		GameOver: gameOver,
-	}
+	result := g.movePieceDown()
+	result.Action = a
+	result.Board = g.board
+	return result
 }
 
 // DoAction perform given action
@@ -107,7 +115,7 @@ func (g *Tetris) newPiece() bool {
 	return false
 }
 
-func (g *Tetris) movePieceDown() bool {
+func (g *Tetris) movePieceDown() *StepResult {
 	gameOver := false
 	g.board.unSetPiece(g.currentPiece)
 	collided := !g.board.canMoveDown(g.currentPiece)
@@ -115,15 +123,23 @@ func (g *Tetris) movePieceDown() bool {
 		g.currentPiece.down()
 	}
 	g.board.setPiece(g.currentPiece)
+	completedLines := 0
 	if collided {
 		g.score += 10
-		completedLines := g.board.checkCompletedLines()
+		completedLines = g.board.checkCompletedLines()
+		g.completedLines += completedLines
 		g.score += g.completedLinesScore(completedLines)
 
 		gameOver = g.newPiece()
 	}
 
-	return gameOver
+	return &StepResult{
+		GameOver:            gameOver,
+		Collided:            collided,
+		CompletedLinesStep:  completedLines,
+		CompletedLinesTotal: g.completedLines,
+		Score:               g.score,
+	}
 }
 
 func (g *Tetris) completedLinesScore(completedLines int) int {
